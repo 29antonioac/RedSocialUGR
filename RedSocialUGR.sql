@@ -59,10 +59,10 @@
  -- fechaNacimiento  DATE        NOT NULL,
 
  INSERT INTO estudiantes (correo,nombre,apellidos,fechaNacimiento) VALUES
- ('analca3@correo.ugr.es','Antonio','Álvarez Caballero',"29/11/1993"),
- ('evamariagg@correo.ugr.es','Eva María','González García',"08/07/1992"),
- ('cparadela@correo.ugr.es','Carlos','Paradela Pérez',"17/03/1992"),
- ('adrianranea@correo.ugr.es','Adrián','Ranea Robles',"07/12/1993");
+ ('antonio@correo.ugr.es','Antonio','Álvarez Caballero',"1993-11-29"),
+ ('evamaria@correo.ugr.es','Eva María','González García',"1992-02-01"),
+ ('carlos@correo.ugr.es','Carlos','Paradela Pérez',"1992-02-02"),
+ ('adrian@correo.ugr.es','Adrián','Ranea Robles',"1993-02-02");
 
  -- Inserción de tuplas en carreras
 
@@ -78,7 +78,7 @@
  -- nombre_carrera VARCHAR(50) NOT NULL,
 
  INSERT INTO cursa (correo_alumno, nombre_carrera) VALUES
- ('analca3@correo.ugr.es','Doble Grado'),
- ('evamariagg@correo.ugr.es','Doble Grado'),
- ('cparadela@correo.ugr.es','Doble Grado'),
- ('adrianranea@correo.ugr.es','Doble Grado');
+ ('antonio@correo.ugr.es','Doble Grado'),
+ ('evamaria@correo.ugr.es','Doble Grado'),
+ ('carlos@correo.ugr.es','Doble Grado'),
+ ('adrian@correo.ugr.es','Doble Grado');

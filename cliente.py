@@ -1,15 +1,6 @@
 #!/usr/bin/python
 import pymysql
-
-# Realizamos consultas
-#some_name = 'Georgi'
-#cursor.execute("SELECT first_name,last_name FROM employees WHERE first_name=%s", (some_name))
-#cursor.execute("SELECT correo,nombre,nombre_carrera FROM estudiantes,cursa WHERE estudiantes.correo=cursa.correo_alumno ")
-
-    # Con los datos obtenidos hacemos lo que queramos
-    # for correo,nombre,carrera in cursor:
-    #     print(correo + " -> " + nombre + " -> " + carrera)
-
+import datetime
 
 """
 Para sacar los nombres de las columnas de una tabla se usa
@@ -20,29 +11,42 @@ AND `TABLE_NAME`='yourtablename';
 """
 
 """
-Funciones auxiliares para no recargar el main
+Funciones auxiliares
+"""
+
+def imprimeEstudiante(estudiante):
+    for atributo in estudiante:
+        if isinstance(atributo,datetime.date):
+            print(atributo.strftime('%d/%m/%Y'),end=" | "),
+        else:
+            print(atributo,end=" | "),
+
+    print()
+
+
+
+"""
+Funciones principales
 """
 def altaEstudiante():
 
+    # Cogemos las columnas disponibles (para pedir todos los datos disponibles)
     cursor.execute('SELECT COLUMN_NAME  \
     FROM INFORMATION_SCHEMA.COLUMNS \
     WHERE TABLE_SCHEMA= \'RedSocialUGR\' \
     AND TABLE_NAME=\'estudiantes\'')
 
-
-    # Probamos con correo y nombre solo
-
+    # Tomamos para cada columna el valor deseado por teclado
+    argumentos = []
     for columna in cursor:
-        print(columna[0])
+        valor = input(columna[0] + ": ")
+        if valor == "":
+            valor = None
+        argumentos.append(valor)
 
-    nombre = input("Nombre: ")
-    apellidos = input("Apellidos: ")
-    correo = input("Correo: ")
-
-    cursor.execute("INSERT INTO estudiantes(correo,nombre,apellidos) VALUES (%s,%s,%s)",(correo,nombre,apellidos))
-
-
-
+    # Lo convertimos a tupla y lanzamos la consulta
+    entrada = tuple(argumentos)
+    cursor.execute("INSERT INTO estudiantes VALUES %s",(entrada,))
 
 
 def bajaEstudiante():
@@ -62,7 +66,7 @@ def buscarEstudiantesPorNombre():
     cursor.execute("SELECT * FROM estudiantes WHERE nombre=%s",(nombre))
     resultado = cursor.fetchall()
     for fila in resultado:
-        print(fila)
+        imprimeEstudiante(fila)
 def matricularAsignatura():
     pass
 def superarAsignatura():
@@ -74,14 +78,14 @@ def consultarEstudiante():
     cursor.execute("SELECT * FROM estudiantes WHERE correo=%s",(correo))
     resultado = cursor.fetchall()
     for fila in resultado:
-        print(fila)
+        imprimeEstudiante(fila)
 
 def consultaPersonalizada():
     consulta = input("Introducir consulta: ")
     cursor.execute(consulta)
     resultado = cursor.fetchall()
     for fila in resultado:
-        print(fila)
+        imprimeEstudiante(fila)
 
 def guardarCambios():
     conexion.commit()
@@ -98,52 +102,47 @@ def main():
     cursor = conexion.cursor()
 
     menu = {}
-    menu[1] = "Alta de estudiante"
-    menu[2] = "Baja de estudiante"
-    menu[3] = "Modificar estudiante"
-    menu[4] = "Buscar estudiantes por carrera"
-    menu[5] = "Buscar estudiantes por centro"
-    menu[6] = "Buscar estudiantes por asignatura"
-    menu[7] = "Buscar estudiantes por nombre"
-    menu[8] = "Matricular asignatura"
-    menu[9] = "Superar asignatura"
-    menu[10] = "Abandonar asignatura"
-    menu[11] = "Consultar estudiante"
-    menu[12] = "Consulta personalizada"
-    menu[13] = "Guardar cambios"
-
-    funcion = {}
-    funcion["1"] = altaEstudiante
-    funcion["2"] = bajaEstudiante
-    funcion["3"] = modificarEstudiante
-    funcion["4"] = buscarEstudiantesPorCarrera
-    funcion["5"] = buscarEstudiantesPorCentro
-    funcion["6"] = buscarEstudiantesPorAsignatura
-    funcion["7"] = buscarEstudiantesPorNombre
-    funcion["8"] = matricularAsignatura
-    funcion["9"] = superarAsignatura
-    funcion["10"] = abandonarAsignatura
-    funcion["11"] = consultarEstudiante
-    funcion["12"] = consultaPersonalizada
-    funcion["13"] = guardarCambios
+    menu[1] = ("Alta de estudiante", altaEstudiante)
+    menu[2] = ("Baja de estudiante", bajaEstudiante)
+    menu[3] = ("Modificar estudiante", modificarEstudiante)
+    menu[4] = ("Buscar estudiantes por carrera", buscarEstudiantesPorCarrera)
+    menu[5] = ("Buscar estudiantes por centro", buscarEstudiantesPorCentro)
+    menu[6] = ("Buscar estudiantes por asignatura", buscarEstudiantesPorAsignatura)
+    menu[7] = ("Buscar estudiantes por nombre", buscarEstudiantesPorNombre)
+    menu[8] = ("Matricular asignatura", matricularAsignatura)
+    menu[9] = ("Superar asignatura", superarAsignatura)
+    menu[10] = ("Abandonar asignatura", abandonarAsignatura)
+    menu[11] = ("Consultar estudiante", consultarEstudiante)
+    menu[12] = ("Consulta personalizada", consultaPersonalizada)
+    menu[13] = ("Guardar cambios", guardarCambios)
 
     while True:
+        # Ordenamos las opciones del menú
         opciones = sorted(menu, key=menu.get)
         opciones.sort()
+        # Imprimimos las opciones del menú
         print("---------------------------")
         for item in opciones:
-            print(str(item) + " -> " + menu[item])
+            print(str(item) + " -> " + menu[item][0])
+        print("Q para salir")
 
+        # Seleccionamos una opción
         seleccion = input("\nQué quieres hacer? ")
-        if seleccion in funcion.keys():
-            funcion[seleccion]()
+
+        if seleccion == "":
+            print("No has seleccionado nada")
         elif seleccion == "Q" or seleccion == "q":
+            # Salir
             break
+        elif int(seleccion) in menu.keys():
+            # Tomamos el segundo elemento de la tupla ítem de menu (es una función)
+            menu[int(seleccion)][1]()
         else:
+            # Opción inválida
             print("No es una buena opción")
 
+    # Si se pulsa Q, cerrar la conexión
     print("Cerrando conexión")
-    # Cerrar conexión a la BD
     conexion.close()
 
 

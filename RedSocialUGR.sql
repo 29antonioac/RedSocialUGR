@@ -25,27 +25,31 @@
    PRIMARY KEY  (correo)
  );
 
- CREATE TABLE carreras (
-   Nombre         VARCHAR(30) NOT NULL,
-   Centro         VARCHAR(30) NOT NULL,
-   PRIMARY KEY  (nombre)
+ CREATE TABLE foro (
+   IdentificadorForo  INTEGER(50) NOT NULL,
+   NombreForo         VARCHAR(50) NOT NULL,
+   PRIMARY KEY  (IdentificadorForo)
  );
+
+   CREATE TABLE carrera (
+     NombreCarrera        VARCHAR(50) NOT NULL,
+     Centro               VARCHAR(50) DEFAULT NULL,
+     IdentificadorForo    INTEGER(50) NOT NULL,
+     PRIMARY KEY(NombreCarrera),
+     FOREIGN KEY    (IdentificadorForo)   REFERENCES foro  (IdentificadorForo)
+   );
 
  CREATE TABLE cursa (
    CorreoAlumno  VARCHAR(50) NOT NULL,
    NombreCarrera VARCHAR(50) NOT NULL,
    PRIMARY KEY    (CorreoAlumno, NombreCarrera),
    FOREIGN KEY    (CorreoAlumno)   REFERENCES estudiantes  (Correo) ON DELETE CASCADE,
-   FOREIGN KEY    (NombreCarrera)  REFERENCES carreras     (Nombre) ON DELETE CASCADE
+   FOREIGN KEY    (NombreCarrera)  REFERENCES carrera     (NombreCarrera) ON DELETE CASCADE
  );
 
  -- Creación de la tabla muros
 
- CREATE TABLE foro (
-   IdentificadorForo  INTEGER(50) NOT NULL,
-   NombreForo         VARCHAR(50) NOT NULL,
-   PRIMARY KEY  (IdentificadorForo)
- );
+
 
  CREATE TABLE tema (
    IdentificadorForo  INTEGER(50) NOT NULL,
@@ -111,13 +115,7 @@
   );
 
    -- Creación de la tabla de asignaturas-centros
-   CREATE TABLE carrera (
-     NombreCarrera        VARCHAR(50) NOT NULL,
-     Centro               VARCHAR(50) DEFAULT NULL,
-     IdentificadorForo    INTEGER(50) NOT NULL,
-     PRIMARY KEY(NombreCarrera),
-     FOREIGN KEY    (IdentificadorForo)   REFERENCES foro  (IdentificadorForo)
-   );
+
 
    CREATE TABLE asignatura (
      NombreAsignatura	      VARCHAR(50) NOT NULL,
@@ -208,8 +206,8 @@ DELIMITER ;
  AFTER DELETE
    ON cursa FOR EACH ROW
  BEGIN
-   DECLARE carreras INTEGER;
-   SELECT COUNT(*) INTO carreras FROM cursa WHERE OLD.CorreoAlumno=cursa.CorreoAlumno;
+   DECLARE carrera INTEGER;
+   SELECT COUNT(*) INTO carrera FROM cursa WHERE OLD.CorreoAlumno=cursa.CorreoAlumno;
    IF (carreras = 0) THEN
       UPDATE estudiantes SET Ocupacion="Sin carrera" WHERE estudiantes.Correo=OLD.CorreoAlumno;
    END IF;
@@ -226,10 +224,10 @@ DELIMITER ;
  BEGIN
  DECLARE existemuro INTEGER;
    SELECT COUNT(*) INTO existemuro FROM muro WHERE OLD.MuroAsociado = NEW.MuroAsociado;
-   IF (existemuro = 0) THEN
+   IF (existemuro = 0 AND OLD.MuroAsociado <> NEW.MuroAsociado) THEN
      INSERT INTO muro VALUES (NEW.MuroAsociado);
+     DELETE FROM muro WHERE OLD.MuroAsociado=IdentificadorMuro;
    END IF;
-   DELETE FROM muro WHERE OLD.MuroAsociado=IdentificadorMuro;
  END; //
  DELIMITER ;
 
@@ -260,15 +258,26 @@ DELIMITER ;
  -- centro         VARCHAR(30) NOT NULL,
  -- PRIMARY KEY(nombre)
 
- INSERT INTO carreras (Nombre, Centro) VALUES
- ('Doble Grado', 'ETSIIT/Ciencias');
+
 
  -- Inserción de tuplas en cursa
  -- correo_alumno  VARCHAR(50) NOT NULL,
  -- nombre_carrera VARCHAR(50) NOT NULL,
+
+
+
+ -- Inserción de foro
+ INSERT INTO foro VALUES (2457,'Foro DGIIM');
+
+ INSERT INTO carrera VALUES
+ ('Doble Grado', 'ETSIIT/Ciencias', 2457);
 
  INSERT INTO cursa (CorreoAlumno, NombreCarrera) VALUES
  ('antonio@correo.ugr.es','Doble Grado'),
  ('evamaria@correo.ugr.es','Doble Grado'),
  ('carlos@correo.ugr.es','Doble Grado'),
  ('adrian@correo.ugr.es','Doble Grado');
+
+ -- Inserción de actividades
+ INSERT INTO muro VALUES (1897);
+ INSERT INTO actividad VALUES ('antonio@correo.ugr.es','Torneo de Battlefront II', 'Torneo amateur de Star Wars Battlefront II','2015-02-18','2015-02-19',0,TRUE,1897,'Doble Grado');

@@ -3,19 +3,11 @@ import pymysql
 import datetime
 
 """
-Para sacar los nombres de las columnas de una tabla se usa
-SELECT `COLUMN_NAME`
-FROM `INFORMATION_SCHEMA`.`COLUMNS`
-WHERE `TABLE_SCHEMA`='yourdatabasename'
-AND `TABLE_NAME`='yourtablename';
-"""
-
-"""
 Funciones auxiliares
 """
 
-def imprimeEstudiante(estudiante):
-    for atributo in estudiante:
+def imprime(fila):
+    for atributo in fila:
         if isinstance(atributo,datetime.date):
             print(atributo.strftime('%d/%m/%Y'),end=" | "),
         else:
@@ -53,6 +45,27 @@ def bajaEstudiante():
     correo = input("Correo del estudiante a buscar: ")
     cursor.execute("DELETE FROM estudiantes WHERE correo=%s",(correo))
 
+def crearForo():
+    idForo = int(input("Id foro: "))
+    nombreForo = input("Nombre del Foro: ")
+
+    cursor.execute("INSERT INTO foro VALUES (%s,%s)",(idForo,nombreForo))
+
+
+def modificarCentroCarrera():
+    nombreCarrera = input("Nombre de la carrera a modificar: ")
+    valorAtributo = input("Nombre del centro: ")
+
+    cursor.execute("UPDATE carrera SET Centro=%s WHERE NombreCarrera=%s", (valorAtributo,nombreCarrera))
+
+def modificarDescripcionActividad():
+    NombreActividad = input("Nombre de la actividad a modificar: ")
+    CorreoCreador = input("Correo del creador: ")
+    descripcion = input("Descripción: ")
+
+    cursor.execute("UPDATE actividad SET Descripcion=%s WHERE CorreoCreador=%s AND NombreActividad=%s", (descripcion,CorreoCreador,NombreActividad))
+
+
 def modificarEstudiante():
     pass
 def buscarEstudiantesPorCarrera():
@@ -66,7 +79,8 @@ def buscarEstudiantesPorNombre():
     cursor.execute("SELECT * FROM estudiantes WHERE nombre=%s",(nombre))
     resultado = cursor.fetchall()
     for fila in resultado:
-        imprimeEstudiante(fila)
+        imprime(fila)
+
 def matricularAsignatura():
     pass
 def superarAsignatura():
@@ -78,14 +92,40 @@ def consultarEstudiante():
     cursor.execute("SELECT * FROM estudiantes WHERE correo=%s",(correo))
     resultado = cursor.fetchall()
     for fila in resultado:
-        imprimeEstudiante(fila)
+        imprime(fila)
+
+def consultarCarrera():
+    carrera = input("Carrera a consultar: ")
+    cursor.execute("SELECT * FROM carrera WHERE NombreCarrera=%s",(carrera))
+
+    resultado = cursor.fetchall()
+    for fila in resultado:
+        imprime(fila)
+
+def consultarActividad():
+    actividad = input("Actividad a consultar: ")
+    correo = input("Creador: ")
+    cursor.execute("SELECT * FROM actividad WHERE NombreActividad=%s AND CorreoCreador=%s",(actividad,correo))
+
+    resultado = cursor.fetchall()
+    for fila in resultado:
+        imprime(fila)
+
+def consultarForo():
+    foro = int(input("Identificador a consultar: "))
+    cursor.execute("SELECT * FROM foro WHERE IdentificadorForo=%s",(foro))
+
+    resultado = cursor.fetchall()
+    for fila in resultado:
+        imprime(fila)
+
 
 def consultaPersonalizada():
     consulta = input("Introducir consulta: ")
     cursor.execute(consulta)
     resultado = cursor.fetchall()
     for fila in resultado:
-        imprimeEstudiante(fila)
+        imprime(fila)
 
 def guardarCambios():
     conexion.commit()
@@ -98,23 +138,22 @@ def main():
     global cursor, conexion
     # Nos conectamos a la BD
     conexion = pymysql.connect(user='antonio', password='archlinux', database='RedSocialUGR')
-    # Tomamos un cursor (no sé muy bien qué es pero supongo que será lo que hace las consultas)
+    # Tomamos un cursor
     cursor = conexion.cursor()
 
     menu = {}
-    menu[1] = ("Alta de estudiante", altaEstudiante)
-    menu[2] = ("Baja de estudiante", bajaEstudiante)
-    menu[3] = ("Modificar estudiante", modificarEstudiante)
-    menu[4] = ("Buscar estudiantes por carrera", buscarEstudiantesPorCarrera)
-    menu[5] = ("Buscar estudiantes por centro", buscarEstudiantesPorCentro)
-    menu[6] = ("Buscar estudiantes por asignatura", buscarEstudiantesPorAsignatura)
-    menu[7] = ("Buscar estudiantes por nombre", buscarEstudiantesPorNombre)
-    menu[8] = ("Matricular asignatura", matricularAsignatura)
-    menu[9] = ("Superar asignatura", superarAsignatura)
-    menu[10] = ("Abandonar asignatura", abandonarAsignatura)
-    menu[11] = ("Consultar estudiante", consultarEstudiante)
-    menu[12] = ("Consulta personalizada", consultaPersonalizada)
-    menu[13] = ("Guardar cambios", guardarCambios)
+    menu[1] = ("Alta de estudiante",    altaEstudiante)
+    menu[2] = ("Baja de estudiante",    bajaEstudiante)
+    menu[3] = ("Crear foro",            crearForo)
+    menu[4] = ("Modificar centro de carrera",     modificarCentroCarrera)
+    menu[5] = ("Modificar descripción una actividad", modificarDescripcionActividad)
+
+    menu[11] = ("Consultar estudiante",     consultarEstudiante)
+    menu[12] = ("Consultar carrera",        consultarCarrera)
+    menu[13] = ("Consultar actividad",      consultarActividad)
+    menu[14] = ("Consultar foro",           consultarForo)
+    menu[30] = ("Consulta personalizada",   consultaPersonalizada)
+    menu[31] = ("Guardar cambios",          guardarCambios)
 
     while True:
         # Ordenamos las opciones del menú

@@ -126,6 +126,24 @@
      FOREIGN KEY    (NombreCarrera)   REFERENCES carrera  (NombreCarrera)
   );
 
+
+  CREATE TABLE matriculadas (
+    CorreoAlumno      VARCHAR(50) NOT NULL,
+    NombreAsignatura  VARCHAR(50) NOT NULL,
+    PRIMARY KEY (CorreoAlumno, NombreAsignatura),
+    FOREIGN KEY (CorreoAlumno) REFERENCES estudiantes (Correo) ON DELETE CASCADE ,
+    FOREIGN KEY (NombreAsignatura) REFERENCES asignatura (NombreAsignatura) ON DELETE CASCADE
+  );
+
+  CREATE TABLE superadas (
+    CorreoAlumno      VARCHAR(50) NOT NULL,
+    NombreAsignatura  VARCHAR(50) NOT NULL,
+    PRIMARY KEY (CorreoAlumno, NombreAsignatura),
+    FOREIGN KEY (CorreoAlumno) REFERENCES estudiantes (Correo) ON DELETE CASCADE ,
+    FOREIGN KEY (NombreAsignatura) REFERENCES asignatura (NombreAsignatura) ON DELETE CASCADE
+  );
+
+
    CREATE TABLE documento (
      NombreAsignatura	    VARCHAR(50) NOT NULL,
      Ruta                 VARCHAR(50) NOT NULL,
@@ -166,18 +184,6 @@
    FOREIGN KEY    (CorreoEstudianteCreador,NombreActividad)   REFERENCES actividad  (CorreoCreador,NombreActividad)
 );
 
-
-
- -- Disparadores
- -- CREATE TRIGGER Taxpayer_Update
- -- AFTER UPDATE ON Taxpayers
- --   REFERENCING OLD ROW AS Old, NEW ROW AS New FOR EACH ROW
- -- BEGIN ATOMIC
- --   UPDATE National_Debt SET
- --       amount = amount + (New.payable - Old.payable);
- --   UPDATE Prime_Ministers SET
- --     approval_rating = approval_rating - 0.01;
- -- END;
 
  -- Eva
 DELIMITER //
@@ -222,11 +228,11 @@ DELIMITER ;
  BEFORE UPDATE
   ON actividad FOR EACH ROW
  BEGIN
- DECLARE existemuro INTEGER;
-   SELECT COUNT(*) INTO existemuro FROM muro WHERE OLD.MuroAsociado = NEW.MuroAsociado;
-   IF (existemuro = 0 AND OLD.MuroAsociado <> NEW.MuroAsociado) THEN
-     INSERT INTO muro VALUES (NEW.MuroAsociado);
-     DELETE FROM muro WHERE OLD.MuroAsociado=IdentificadorMuro;
+   DECLARE existemuro INTEGER;
+   SELECT COUNT(*) INTO existemuro FROM muro WHERE NEW.MuroAsociado = muro.MuroAsociado;
+   IF (existemuro = 0 and OLD.MuroAsociado <> NEW.MuroAsociado) THEN
+    INSERT INTO muro VALUES (NEW.MuroAsociado);
+    DELETE FROM muro WHERE OLD.MuroAsociado=IdentificadorMuro;
    END IF;
  END; //
  DELIMITER ;
@@ -252,17 +258,6 @@ DELIMITER ;
  ('carlos@correo.ugr.es','Carlos','Parla Pérez',"1992-02-02"),
  ('adrian@correo.ugr.es','Adrián','Rho Rha',"1993-02-02");
 
- -- Inserción de tuplas en carreras
-
- -- nombre         VARCHAR(30) NOT NULL,
- -- centro         VARCHAR(30) NOT NULL,
- -- PRIMARY KEY(nombre)
-
-
-
- -- Inserción de tuplas en cursa
- -- correo_alumno  VARCHAR(50) NOT NULL,
- -- nombre_carrera VARCHAR(50) NOT NULL,
 
 
 

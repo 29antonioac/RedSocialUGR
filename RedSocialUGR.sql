@@ -256,7 +256,7 @@ DELIMITER ;
  ('antonio@correo.ugr.es','Antonio','Álvarez Caballero',"1993-11-29"),
  ('evamaria@correo.ugr.es','Eva María','González García',"1992-02-09"),
  ('carlos@correo.ugr.es','Carlos','Parla Pérez',"1992-02-02"),
- ('adrian@correo.ugr.es','Adrián','Rho Rha',"1993-02-02");
+ ('adrian@correo.ugr.es','Adrián','R R',"1993-02-02");
 
 
 
